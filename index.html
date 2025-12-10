@@ -1,32 +1,144 @@
-
 <!DOCTYPE html>
-<html>
-
-
+<html lang="it">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=2.0">
-	<meta http-equiv="X-UA-Compatible" content="IE-edge">
-	<title> Capstone  </title>
-	<link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8">
+<title>Pianeti evidenziabili</title>
+
+<style>
+  body {
+    background: #001;
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+  }
+
+  .container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .planets-img {
+    display: block;
+    width: 955px;
+  }
+
+  /* overlay per l’highlight */
+  .highlight {
+    position: absolute;
+    border-radius: 50%;
+    border: 4px solid yellow;
+    box-shadow: 0 0 25px 10px yellow;
+    pointer-events: none;
+    opacity: 0;
+    transition: 0.25s ease;
+  }
+
+  area:hover + .highlight {
+    opacity: 1;
+  }
+
+</style>
 </head>
 
-
 <body>
-    	<h1> - Your support emotional Russian believes in you -  </h1>    	
-		<h2> - Il tuo agente KGB per supporto emozionale crede in te -  </h2>
 
-    <a target="_blank" href="agentin.gif">
-    <img src="agentin.gif" alt="KGBagentin" width="99" height="166">
-  </a>
+<div class="container">
+  <img src="nice.png" usemap="#image-map" class="planets-img">
 
-	<blockquote class="twitter-tweet" data-media-max-width="560"><p lang="en" dir="ltr">Since your FBI agent doesn&#39;t care about you, your KGB agent assigned you an emotional support Russian <a href="https://t.co/CMFZQJMdTO">pic.twitter.com/CMFZQJMdTO</a></p>&mdash; Conscious Philosopher (@consciousphilos) <a href="https://twitter.com/consciousphilos/status/1994522159839093096?ref_src=twsrc%5Etfw">November 28, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <map name="image-map">
+
+    <!-- Mars -->
+    <area alt="mars" title="Mars" href="mars.html" coords="90,430,57" shape="circle">
+    <div class="highlight" style="
+        left: 33px;
+        top: 373px;
+        width: 114px;
+        height: 114px;
+    "></div>
 
 
-		<h3>:You cannot falling apart, if you simply refuse</h3>
-		<h4>:Non puoi andare in pezzi se semplicemente rifiuti</h4>
 
 
-</body>
-</html>
+
+    <!-- Sun -->
+    <area alt="sun" title="Sun" href="sun.html" coords="281,213,32" shape="circle">
+    <div class="highlight" style="
+        left: calc(281px - 32px);
+        top: calc(213px - 32px);
+        width: 64px;
+        height: 64px;
+    "></div>
+
+    <!-- Jupiter -->
+    <area alt="jupiter" title="Jupiter" href="jupiter.html" coords="827,252,143" shape="circle">
+    <div class="highlight" style="
+        left: calc(827px - 143px);
+        top: calc(252px - 143px);
+        width: 286px;
+        height: 286px;
+    "></div>
+
+    <!-- Venus -->
+    <area alt="venus" title="Venus" href="venus.html" coords="647,289,36" shape="circle">
+    <div class="highlight" style="
+        left: calc(647px - 36px);
+        top: calc(289px - 36px);
+        width: 72px;
+        height: 72px;
+    "></div>
+
+    <!-- Neptune -->
+    <area alt="neptune" title="Neptune" href="neptune.html" coords="164,77,56" shape="circle">
+    <div class="highlight" style="
+        left: calc(164px - 56px);
+        top: calc(77px - 56px);
+        width: 112px;
+        height: 112px;
+    "></div>
+
+    <!-- Uranus -->
+    <area alt="uranus" title="Uranus" href="uranus.html" coords="641,163,55" shape="circle">
+    <div class="highlight" style="
+        left: calc(641px - 55px);
+        top: calc(163px - 55px);
+        width: 110px;
+        height: 110px;
+    "></div>
+
+    <!-- Mercury -->
+    <area alt="mercury" title="Mercury" href="mercury.html" coords="513,333,23" shape="circle">
+    <div class="highlight" style="
+        left: calc(513px - 23px);
+        top: calc(333px - 23px);
+        width: 46px;
+        height: 46px;
+    "></div>
+
+    <!-- Pluto -->
+    <area alt="pluto" title="Pluto" href="pluto.html" coords="564,103,37" shape="circle">
+    <div class="highlight" style="
+        left: calc(564px - 37px);
+        top: calc(103px - 37px);
+        width: 74px;
+        height: 74px;
+    "></div>
+
+
+      <!-- Saturn (circle) -->
+<area alt="saturn" title="Saturn" href="saturn.html"
+      coords="37,219,97" shape="circle">
+<div class="highlight" style="
+    left: calc(37px - 97px);
+    top: calc(219px - 97px);
+    width: 194px;
+    height: 194px;
+"></div>
+
+<!-- Earth (POLYGON) -->
+<area alt="earth" title="Earth"
+      href="earth.html"
+      shape="circle"
+      coords="955,527,0,527,955,300"  id="earth-area">
+
+
 
