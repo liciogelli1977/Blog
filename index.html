@@ -1,144 +1,332 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pianeti evidenziabili</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@200;400&display=swap" rel="stylesheet">
 <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    background: #001;
+    background: #000;
+    font-family: 'Raleway', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    cursor: crosshair;
+  }
+
+  canvas#stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 30%, rgba(72,0,120,0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 80% 70%, rgba(0,60,120,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(20,0,50,0.5) 0%, transparent 80%);
+  }
+
+  canvas#orbits {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .title {
+    position: fixed;
+    top: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    text-align: center;
+    pointer-events: none;
+  }
+  .title h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 3vw, 2.4rem);
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 0.35em;
+    text-shadow: 0 0 30px rgba(140,80,255,0.8), 0 0 60px rgba(80,160,255,0.4);
+    white-space: nowrap;
+  }
+  .title p {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: rgba(200,200,255,0.45);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .sun {
+    position: fixed;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff8e1, #ffcc02 40%, #ff8c00 70%, #c84b00);
+    box-shadow:
+      0 0 30px 15px rgba(255,180,0,0.6),
+      0 0 80px 40px rgba(255,120,0,0.3),
+      0 0 160px 80px rgba(255,80,0,0.15);
+    z-index: 10;
+    animation: sunPulse 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes sunPulse {
+    0%,100% { box-shadow: 0 0 30px 15px rgba(255,180,0,0.6), 0 0 80px 40px rgba(255,120,0,0.3), 0 0 160px 80px rgba(255,80,0,0.15); }
+    50%     { box-shadow: 0 0 40px 20px rgba(255,200,0,0.75), 0 0 100px 50px rgba(255,140,0,0.4), 0 0 200px 100px rgba(255,100,0,0.2); }
+  }
+
+  /* Planets are positioned absolutely by JS — no wrapper divs */
+  .planet {
+    position: fixed;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 20;
     display: flex;
+    align-items: center;
     justify-content: center;
-    padding-top: 40px;
+    transition: filter 0.2s, transform 0.15s;
+  }
+  .planet:hover {
+    filter: brightness(1.4);
+    transform: scale(1.28) !important;
+  }
+  .planet:hover .planet-label { opacity: 1; }
+
+  .planet-label {
+    position: absolute;
+    bottom: calc(100% + 9px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 10px currentColor;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
   }
 
-  .container {
-    position: relative;
-    display: inline-block;
-  }
-
-  .planets-img {
-    display: block;
-    width: 955px;
-  }
-
-  /* overlay per l’highlight */
-  .highlight {
+  .planet-ring {
     position: absolute;
     border-radius: 50%;
-    border: 4px solid yellow;
-    box-shadow: 0 0 25px 10px yellow;
     pointer-events: none;
-    opacity: 0;
-    transition: 0.25s ease;
   }
 
-  area:hover + .highlight {
-    opacity: 1;
+  .tooltip {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: rgba(200,200,255,0.4);
+    text-transform: uppercase;
+    z-index: 200;
+    pointer-events: none;
+    animation: fadeUpDown 3s ease-in-out infinite;
+  }
+  @keyframes fadeUpDown {
+    0%,100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+    50%     { opacity: 0.7; transform: translateX(-50%) translateY(-4px); }
   }
 
+  .ripple {
+    position: fixed;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.6);
+    pointer-events: none;
+    animation: rippleOut 0.6s ease-out forwards;
+    z-index: 500;
+  }
+  @keyframes rippleOut {
+    from { width: 0; height: 0; opacity: 1; transform: translate(-50%,-50%); }
+    to   { width: 100px; height: 100px; opacity: 0; transform: translate(-50%,-50%); }
+  }
+
+  .shoot {
+    position: fixed;
+    width: 2px; height: 80px;
+    background: linear-gradient(to bottom, transparent, white);
+    border-radius: 2px;
+    pointer-events: none;
+    animation: shootDown 0.9s linear forwards;
+    z-index: 2;
+  }
+  @keyframes shootDown {
+    from { opacity: 1; transform: translateY(0) rotate(var(--a)); }
+    to   { opacity: 0; transform: translateY(300px) rotate(var(--a)); }
+  }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-  <img src="nice.png" usemap="#image-map" class="planets-img">
+<canvas id="stars"></canvas>
+<div class="nebula"></div>
+<canvas id="orbits"></canvas>
 
-  <map name="image-map">
+<div class="title">
+  <h1>MY UNIVERSE</h1>
+  <p>click a planet to explore</p>
+</div>
 
-    <!-- Mars -->
-    <area alt="mars" title="Mars" href="mars.html" coords="90,430,57" shape="circle">
-    <div class="highlight" style="
-        left: 33px;
-        top: 373px;
-        width: 114px;
-        height: 114px;
-    "></div>
+<div class="sun" id="sun"></div>
+<div class="tooltip">navigate the cosmos</div>
 
+<script>
+const SUN_SIZE = 90;
 
+const PLANETS = [
+  { name:'Contact',  href:'/contact',  size:28, orbitR:110, period:14, phase:20,  grad:['#80deea','#0288d1'], glow:'rgba(2,136,209,0.8)',   ring:false },
+  { name:'Blog',     href:'/blog',     size:34, orbitR:165, period:22, phase:100, grad:['#ffe082','#f57f17'], glow:'rgba(245,127,23,0.8)',  ring:false },
+  { name:'Simpsons', href:'/simpsons', size:38, orbitR:225, period:32, phase:200, grad:['#fff176','#fbc02d'], glow:'rgba(251,192,45,0.9)',  ring:true,  ringColor:'rgba(255,220,100,0.55)' },
+  { name:'HR',       href:'/hr',       size:30, orbitR:285, period:44, phase:310, grad:['#ef9a9a','#c62828'], glow:'rgba(198,40,40,0.8)',   ring:false },
+  { name:'Meme',     href:'/meme',     size:42, orbitR:345, period:58, phase:60,  grad:['#ce93d8','#6a1b9a'], glow:'rgba(106,27,154,0.8)', ring:true,  ringColor:'rgba(206,147,216,0.45)' },
+  { name:'Music',    href:'/music',    size:36, orbitR:410, period:74, phase:155, grad:['#a5d6a7','#1b5e20'], glow:'rgba(27,94,32,0.8)',   ring:false },
+  { name:'Films',    href:'/films',    size:46, orbitR:470, period:92, phase:260, grad:['#90caf9','#1565c0'], glow:'rgba(21,101,192,0.8)', ring:true,  ringColor:'rgba(144,202,249,0.4)' },
+];
 
+// ── STARFIELD ──────────────────────────────────────────────────────
+const sc = document.getElementById('stars');
+const sctx = sc.getContext('2d');
+let W, H, stars = [];
 
+function initStars() {
+  W = sc.width = window.innerWidth;
+  H = sc.height = window.innerHeight;
+  stars = Array.from({length:300}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.4+0.2,
+    a: Math.random(), speed: Math.random()*0.4+0.1
+  }));
+}
+function drawStars() {
+  sctx.clearRect(0,0,W,H);
+  stars.forEach(s => {
+    s.a += s.speed*0.008;
+    const alpha = 0.3 + 0.7*Math.abs(Math.sin(s.a));
+    sctx.beginPath(); sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fillStyle = `rgba(255,255,255,${alpha})`; sctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+initStars(); drawStars();
+window.addEventListener('resize', () => { initStars(); positionSun(); drawOrbits(); });
 
-    <!-- Sun -->
-    <area alt="sun" title="Sun" href="sun.html" coords="281,213,32" shape="circle">
-    <div class="highlight" style="
-        left: calc(281px - 32px);
-        top: calc(213px - 32px);
-        width: 64px;
-        height: 64px;
-    "></div>
+// ── ORBIT RINGS ────────────────────────────────────────────────────
+const oc = document.getElementById('orbits');
+const octx = oc.getContext('2d');
+function drawOrbits() {
+  oc.width = window.innerWidth; oc.height = window.innerHeight;
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  PLANETS.forEach(p => {
+    octx.beginPath(); octx.arc(cx, cy, p.orbitR, 0, Math.PI*2);
+    octx.strokeStyle = 'rgba(255,255,255,0.07)'; octx.lineWidth = 1; octx.stroke();
+  });
+}
+drawOrbits();
 
-    <!-- Jupiter -->
-    <area alt="jupiter" title="Jupiter" href="jupiter.html" coords="827,252,143" shape="circle">
-    <div class="highlight" style="
-        left: calc(827px - 143px);
-        top: calc(252px - 143px);
-        width: 286px;
-        height: 286px;
-    "></div>
+// ── SUN ────────────────────────────────────────────────────────────
+const sunEl = document.getElementById('sun');
+function positionSun() {
+  sunEl.style.width = SUN_SIZE+'px'; sunEl.style.height = SUN_SIZE+'px';
+  sunEl.style.left = (window.innerWidth/2 - SUN_SIZE/2)+'px';
+  sunEl.style.top  = (window.innerHeight/2 - SUN_SIZE/2)+'px';
+}
+positionSun();
 
-    <!-- Venus -->
-    <area alt="venus" title="Venus" href="venus.html" coords="647,289,36" shape="circle">
-    <div class="highlight" style="
-        left: calc(647px - 36px);
-        top: calc(289px - 36px);
-        width: 72px;
-        height: 72px;
-    "></div>
+// ── BUILD PLANETS ──────────────────────────────────────────────────
+PLANETS.forEach(p => {
+  // Offscreen canvas gradient texture
+  const off = document.createElement('canvas');
+  off.width = off.height = p.size*2;
+  const g = off.getContext('2d');
+  const grd = g.createRadialGradient(p.size*0.6, p.size*0.55, p.size*0.05, p.size, p.size, p.size);
+  grd.addColorStop(0, p.grad[0]); grd.addColorStop(1, p.grad[1]);
+  g.beginPath(); g.arc(p.size, p.size, p.size, 0, Math.PI*2);
+  g.fillStyle = grd; g.fill();
 
-    <!-- Neptune -->
-    <area alt="neptune" title="Neptune" href="neptune.html" coords="164,77,56" shape="circle">
-    <div class="highlight" style="
-        left: calc(164px - 56px);
-        top: calc(77px - 56px);
-        width: 112px;
-        height: 112px;
-    "></div>
+  const el = document.createElement('div');
+  el.className = 'planet';
+  el.style.width  = (p.size*2)+'px';
+  el.style.height = (p.size*2)+'px';
+  el.style.background = `url('${off.toDataURL()}') center/cover`;
+  el.style.boxShadow  = `0 0 12px 6px ${p.glow}, 0 0 30px 10px ${p.glow.replace(/[\d.]+\)$/,'0.3)')}`;
 
-    <!-- Uranus -->
-    <area alt="uranus" title="Uranus" href="uranus.html" coords="641,163,55" shape="circle">
-    <div class="highlight" style="
-        left: calc(641px - 55px);
-        top: calc(163px - 55px);
-        width: 110px;
-        height: 110px;
-    "></div>
+  if (p.ring) {
+    const ring = document.createElement('div');
+    ring.className = 'planet-ring';
+    ring.style.cssText = `width:${p.size*3.2}px;height:${p.size*0.7}px;border:3px solid ${p.ringColor};top:50%;left:50%;transform:translate(-50%,-50%) rotateX(70deg);`;
+    el.appendChild(ring);
+  }
 
-    <!-- Mercury -->
-    <area alt="mercury" title="Mercury" href="mercury.html" coords="513,333,23" shape="circle">
-    <div class="highlight" style="
-        left: calc(513px - 23px);
-        top: calc(333px - 23px);
-        width: 46px;
-        height: 46px;
-    "></div>
+  const lbl = document.createElement('div');
+  lbl.className = 'planet-label';
+  lbl.textContent = p.name;
+  lbl.style.color = p.grad[0];
+  lbl.style.textShadow = `0 0 12px ${p.grad[0]}`;
+  el.appendChild(lbl);
 
-    <!-- Pluto -->
-    <area alt="pluto" title="Pluto" href="pluto.html" coords="564,103,37" shape="circle">
-    <div class="highlight" style="
-        left: calc(564px - 37px);
-        top: calc(103px - 37px);
-        width: 74px;
-        height: 74px;
-    "></div>
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    spawnRipple(e.clientX, e.clientY);
+    setTimeout(() => window.location.href = p.href, 350);
+  });
 
+  document.body.appendChild(el);
+  p.el = el;
+});
 
-      <!-- Saturn (circle) -->
-<area alt="saturn" title="Saturn" href="saturn.html"
-      coords="37,219,97" shape="circle">
-<div class="highlight" style="
-    left: calc(37px - 97px);
-    top: calc(219px - 97px);
-    width: 194px;
-    height: 194px;
-"></div>
+// ── ANIMATION LOOP ─────────────────────────────────────────────────
+// Position planets directly via left/top — no wrapper transform tricks
+const t0 = performance.now();
+function animate(now) {
+  const elapsed = (now - t0) / 1000;
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
 
-<!-- Earth (POLYGON) -->
-<area alt="earth" title="Earth"
-      href="earth.html"
-      shape="circle"
-      coords="955,527,0,527,955,300"  id="earth-area">
+  PLANETS.forEach(p => {
+    const angle = (p.phase * Math.PI / 180) + (elapsed / p.period) * Math.PI * 2;
+    const x = cx + Math.cos(angle) * p.orbitR - p.size;
+    const y = cy + Math.sin(angle) * p.orbitR - p.size;
+    p.el.style.left = x + 'px';
+    p.el.style.top  = y + 'px';
+  });
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
 
+// ── RIPPLE ─────────────────────────────────────────────────────────
+function spawnRipple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x+'px'; r.style.top = y+'px';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 700);
+}
+document.body.addEventListener('click', e => {
+  if (!e.target.closest('.planet')) spawnRipple(e.clientX, e.clientY);
+});
 
-
+// ── SHOOTING STARS ─────────────────────────────────────────────────
+function shoot() {
+  const s = document.createElement('div');
+  s.className = 'shoot';
+  const a = Math.random()*30+20;
+  s.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*40}vh;--a:${a}deg;transform:rotate(${a}deg)`;
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 1000);
+}
+setInterval(shoot, 2800); shoot();
+</script>
+</body>
+</html>
